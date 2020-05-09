@@ -1,0 +1,44 @@
+version: 2
+jobs:
+  update_pse_data:
+    working_directory: ~/data
+    docker:
+      - image: cimg/base:2020.01
+    environment:
+      TZ: "Asia/Manila"
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "26:fc:e0:b2:86:86:4c:ef:39:85:ed:2a:6c:4f:70:73"
+      - checkout
+      - run:
+          name: "download pse"
+          command: |
+            wget -q --auth-no-challenge --header='Accept:application/octet-stream' https://"$GITHUB_TOKEN":@api.github.com/repos/jf-algo-trading/psedata/releases/assets/20575358 -O ../pse
+            chmod a+x ../pse
+      - run:
+          name: "update"
+          command: ../pse update PSE/
+      - run:
+          name: "commit changes and push"
+          command: | 
+            git config user.email "bonillajeb@gmail.com"
+            git config user.name "Joseph Edsel Bonilla"
+            git add .
+            git commit -m "`date +%F` update PSE data"
+            git push -u origin master
+
+
+workflows:
+  version: 2
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 9 * * 1-5"
+          filters:
+            branches:
+              only:
+                - master
+                - test
+    jobs:
+      - update_pse_data
