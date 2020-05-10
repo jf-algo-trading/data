@@ -15,7 +15,7 @@ jobs:
           name: "download pse"
           command: |
             # Get latest asset ID
-            export id=`curl -H 'Authorization: token "$GITHUB_TOKEN"' https://api.github.com/repos/jf-algo-trading/psedata/releases | jq '.[0].assets[] | select(.name == "pse-linux-amd64") | .id'`
+            export id=`curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/jf-algo-trading/psedata/releases | jq '.[0].assets[] | select(.name == "pse-linux-amd64") | .id'`
             # Download the asset binary
             wget -q --auth-no-challenge --header='Accept:application/octet-stream' https://"$GITHUB_TOKEN":@api.github.com/repos/jf-algo-trading/psedata/releases/assets/"$id" -O ../pse
             chmod a+x ../pse
@@ -37,7 +37,7 @@ workflows:
   nightly:
     triggers:
       - schedule:
-          cron: "53 7 * * *"
+          cron: "2 8 * * *"
           filters:
             branches:
               only:
